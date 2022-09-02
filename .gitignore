@@ -1,0 +1,6 @@
+node_modules
+dist
+proto
+.env
+.vscode
+soniox-soniox-node-*.tgz
