@@ -74,6 +74,7 @@ export class SpeechClient {
     num_audio_channels: 0,
     include_nonfinal: false,
     enable_separate_recognition_per_channel: false,
+    enable_endpoint_detection: false,
     speech_context: null,
     enable_profanity_filter: false,
     content_moderation_phrases: [],
