@@ -5,7 +5,7 @@ import * as protoLoader from "@grpc/proto-loader";
 
 import { ProtoGrpcType } from "../proto/speech_service";
 import { TranscribeStreamRequest } from "../proto/soniox/speech_service/TranscribeStreamRequest";
-import { TranscriptionConfig__Output } from "../proto/soniox/speech_service/TranscriptionConfig";
+import { TranscriptionConfig } from "../proto/soniox/speech_service/TranscriptionConfig";
 import { TranscribeAsyncRequest } from "../proto/soniox/speech_service/TranscribeAsyncRequest";
 import { GetTranscribeAsyncStatusRequest } from "../proto/soniox/speech_service/GetTranscribeAsyncStatusRequest";
 import { GetTranscribeAsyncResultRequest } from "../proto/soniox/speech_service/GetTranscribeAsyncResultRequest";
@@ -26,6 +26,7 @@ import { TranscribeStreamResponse__Output } from "../proto/soniox/speech_service
 
 const PROTO_PATH = __dirname + "/speech_service.proto";
 const CHUNK_SIZE = 131072; // 128kb
+const GRPC_MAX_MESSAGE_LENGTH = 6291456;
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
@@ -65,10 +66,14 @@ export class SpeechClient {
 
   public client = new speech_service_proto.SpeechService(
     this.connection.host,
-    this.connection.credentials
+    this.connection.credentials,
+    {
+      "grpc.max_send_message_length": GRPC_MAX_MESSAGE_LENGTH,
+      "grpc.max_receive_message_length": GRPC_MAX_MESSAGE_LENGTH,
+    }
   );
 
-  private defaultRequestConfig: TranscriptionConfig__Output = {
+  private defaultRequestConfig: TranscriptionConfig = {
     audio_format: "",
     sample_rate_hertz: 0,
     num_audio_channels: 0,
@@ -129,7 +134,7 @@ export class SpeechClient {
     };
   }
 
-  private _validateConfig(config: TranscriptionConfig__Output) {
+  private _validateConfig(config: TranscriptionConfig) {
     for (const [key, value] of Object.entries(config)) {
       if (!this.defaultRequestConfig.hasOwnProperty(key)) {
         throw new Error(
@@ -141,7 +146,7 @@ export class SpeechClient {
 
   public transcribeFileShort = async (
     file_path: string,
-    config: TranscriptionConfig__Output
+    config: TranscriptionConfig
   ): Promise<Result__Output | Result__Output[]> => {
     if (!file_path) {
       throw new Error('Missing "file_path".');
@@ -187,7 +192,7 @@ export class SpeechClient {
   public transcribeFileAsync = async (
     file_path: string,
     reference_name: string,
-    config: TranscriptionConfig__Output
+    config: TranscriptionConfig
   ): Promise<string> => {
     if (!file_path) {
       throw new Error('Missing "file_path".');
@@ -382,7 +387,7 @@ export class SpeechClient {
   };
 
   public transcribeStream = (
-    config: TranscriptionConfig__Output,
+    config: TranscriptionConfig,
     onData: (result: Result__Output) => void,
     onEnd: (error: any) => void
   ): TranscribeStreamReturn => {
