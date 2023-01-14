@@ -74,6 +74,7 @@ export class SpeechClient {
   );
 
   private defaultRequestConfig: TranscriptionConfig = {
+    client_request_reference: "",
     audio_format: "",
     sample_rate_hertz: 0,
     num_audio_channels: 0,
@@ -91,7 +92,6 @@ export class SpeechClient {
     cand_speaker_names: [],
     model: "",
     enable_dictation: false,
-    transcribe_async_mode: "",
   };
 
   constructor(config?: SpeechClientConfig) {
