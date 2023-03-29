@@ -231,6 +231,7 @@ export class SpeechClient {
       api_key: this.config.api_key,
       reference_name,
       config,
+      enable_eof: true,
     };
     await asyncWriteRequest(call, firstRequest);
 
@@ -240,6 +241,11 @@ export class SpeechClient {
       };
       await asyncWriteRequest(call, audioRequest);
     }
+
+    const eofRequest: TranscribeAsyncRequest = {
+      eof: true,
+    };
+    await asyncWriteRequest(call, eofRequest);
 
     call.end();
 
