@@ -18,5 +18,6 @@ export interface TranscribeStreamReturn {
 
 export interface CreateTemporaryApiKeyParams {
   usage_type: string,
+  expires_in_s: number,
   client_request_reference?: string,
 }

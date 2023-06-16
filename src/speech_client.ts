@@ -480,11 +480,13 @@ export class SpeechClient {
 
   public createTemporaryApiKey = async ({
     usage_type,
+    expires_in_s,
     client_request_reference,
   }: CreateTemporaryApiKeyParams): Promise<CreateTemporaryApiKeyResponse__Output> => {
     const request: CreateTemporaryApiKeyRequest = {
       api_key: this.config.api_key,
       usage_type,
+      expires_in_s,
       client_request_reference,
     };
 
