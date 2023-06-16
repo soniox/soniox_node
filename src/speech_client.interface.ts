@@ -15,3 +15,8 @@ export interface TranscribeStreamReturn {
   writeAsync: (audio: Buffer) => Promise<void>;
   end: () => void;
 }
+
+export interface CreateTemporaryApiKeyParams {
+  usage_type: string,
+  client_request_reference?: string,
+}

@@ -16,6 +16,7 @@ import { TranscribeAsyncFileStatus__Output } from "../proto/soniox/speech_servic
 import { DeleteTranscribeAsyncFileResponse__Output } from "../proto/soniox/speech_service/DeleteTranscribeAsyncFileResponse";
 
 import {
+  CreateTemporaryApiKeyParams,
   GetConnectionDataResult,
   SpeechClientConfig,
   TranscribeStreamReturn,
@@ -23,6 +24,9 @@ import {
 import { TranscribeAsyncResponse__Output } from "../proto/soniox/speech_service/TranscribeAsyncResponse";
 import { GetTranscribeAsyncResultResponse__Output } from "../proto/soniox/speech_service/GetTranscribeAsyncResultResponse";
 import { TranscribeStreamResponse__Output } from "../proto/soniox/speech_service/TranscribeStreamResponse";
+import { CreateTemporaryApiKeyRequest } from "../proto/soniox/speech_service/CreateTemporaryApiKeyRequest";
+import { CreateTemporaryApiKeyResponse__Output } from "../proto/soniox/speech_service/CreateTemporaryApiKeyResponse";
+import { Timestamp__Output } from "../proto/google/protobuf/Timestamp";
 
 const PROTO_PATH = __dirname + "/speech_service.proto";
 const CHUNK_SIZE = 131072; // 128kb
@@ -54,6 +58,21 @@ async function asyncWriteRequest<RequestType>(
       }
     });
   });
+}
+
+export function dateToTimestamp(date: Date): Timestamp__Output {
+  const ms = date.getTime();
+  const whole_s = Math.floor(ms / 1000);
+  const rem_ms = ms - whole_s * 1000;
+  return {
+    seconds: whole_s.toString(),
+    nanos: rem_ms * 1000000,
+  }
+}
+
+export function timestampToDate(timestamp: Timestamp__Output): Date {
+  const timestampMSec = 1000 * parseInt(timestamp.seconds) + Math.floor(0.001 * timestamp.nanos);
+  return new Date(timestampMSec);
 }
 
 export class SpeechClient {
@@ -457,5 +476,33 @@ export class SpeechClient {
       writeAsync,
       end,
     };
+  };
+
+  public createTemporaryApiKey = async ({
+    usage_type,
+    client_request_reference,
+  }: CreateTemporaryApiKeyParams): Promise<CreateTemporaryApiKeyResponse__Output> => {
+    const request: CreateTemporaryApiKeyRequest = {
+      api_key: this.config.api_key,
+      usage_type,
+      client_request_reference,
+    };
+
+    return await new Promise((resolve, reject) => {
+      this.client.CreateTemporaryApiKey(
+        request,
+        (error, response) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          if (!response) {
+            reject("missing response");
+            return;
+          }
+          resolve(response);
+        }
+      );
+    });
   };
 }
